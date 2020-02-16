@@ -25,20 +25,20 @@ end
 % ToDo ????Buffering???????????????????
 
 % ToDo ?????????????????????????
-[ deltaF_vec deltaFisCompleted] = bufferState( deltaF_buff, NeedToReset);
-[ Vx_vec     VxisCompleted]     = bufferState( Vx_buff, NeedToReset);
-[ Yr_vec     YrisCompleted]     = bufferState( Yr_buff, NeedToReset);
-[ Beta_vec   BetaisCompleted]   = bufferState( beta_buff, NeedToReset);
-[ y_vec      yisCompleted]      = bufferState( y_buff, NeedToReset);
-[ theta_buff thetaisCompleted]  = bufferState( theta_buff, NeedToReset);
-[ kr_buff    krisCompleted]     = bufferState( k_buff, NeedToReset);
+[ deltaF_vec deltaFisCompleted] = bufferState( deltaF_buff, NeedToReset,Time_Buff );
+[ Vx_vec     VxisCompleted]     = bufferState( Vx_buff, NeedToReset, Time_Buff);
+[ Yr_vec     YrisCompleted]     = bufferState( Yr_buff, NeedToReset,Time_Buff );
+[ Beta_vec   BetaisCompleted]   = bufferState( beta_buff, NeedToReset,Time_Buff );
+[ y_vec      yisCompleted]      = bufferState( y_buff, NeedToReset,Time_Buff );
+[ theta_buff thetaisCompleted]  = bufferState( theta_buff, NeedToReset,Time_Buff );
+[ kr_buff    krisCompleted]     = bufferState( k_buff, NeedToReset,Time_Buff );
 
-isEstValid = (  ( deltaFisCompleted ) ...
-              &&( VxisCompleted ) ...
-              &&( YrisCompleted ) ...
-              &&( BetaisCompleted )...
-              &&( yisCompleted )...
-              &&( thetaisCompleted )...
+isEstValid = (  ( deltaFisCompleted )
+              &&( VxisCompleted )
+              &&( YrisCompleted )
+              &&( BetaisCompleted )
+              &&( yisCompleted )
+              &&( thetaisCompleted )
               &&( krisCompleted ) );
               
 Yr_base    = Yr_vec(1);
@@ -67,10 +67,12 @@ for i=1:length(Yr_vec);
   end  
 end
 
-Yr_est = Yr_est_vec(idxBuff);
-Beta_est = Beta_est_vec(idxBuff);
-y_est    = y_est_vec(idxBuff);
-theta_est = theta_est_vec(idxBuff);
+Yr_est
+Beta_est
+y_est
+theta_est
+
+
 
 end
 
