@@ -1,11 +1,11 @@
-function [ AyTgt_MEC_Yr AyTgt_MEC_y  AyTgt_MEC_theta] = modelErrorCompensator( deltaF, Vx , Yr , Beta , y ,theta , kr, isSensorValid ,Kyr,Ky,Ktheta,Time_Buff)
+function [ AyTgt_MEC_Yr, AyTgt_MEC_y,  AyTgt_MEC_theta] = modelErrorCompensator( deltaF, Vx , Yr , Beta , y ,theta , kr, isSensorValid ,Kyr,Ky,Ktheta,Time_Buff)
 %MODELERRORCOMPENSATOR Summary of this function goes here
 %   Detailed explanation goes here
 
 % ToDo  
 % ?????????????????????????
 
-[ Yr_est Beta_est y_est theta_est isEstCompleated ] = imposedDynamicsEstimator( deltaF, Vx , Yr , Beta , y ,theta , kr, isSensorValid,Time_Buff);
+[ Yr_est, Beta_est, y_est, theta_est, isEstCompleated ] = imposedDynamicsEstimator( deltaF, Vx , Yr , Beta , y ,theta , kr, isSensorValid,Time_Buff);
 
 if isEstCompleated == true
   AyTgt_MEC_Yr    = Kyr    * ( Yr_est(length(Yr_est))       - Yr    );

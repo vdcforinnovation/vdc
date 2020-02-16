@@ -1,4 +1,4 @@
-function [ Yr_est Beta_est y_est theta_est isEstValid ] = imposedDynamicsEstimator( deltaF, Vx , Yr , Beta , y ,theta , kr, isSensorValid,Time_Buff)
+function [ Yr_est, Beta_est, y_est, theta_est, isEstValid ] = imposedDynamicsEstimator( deltaF,Vx,Yr , Beta , y ,theta , kr, isSensorValid,Time_Buff)
 %IMPOSEDDYNAMICSESTIMATOR Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -22,50 +22,60 @@ else
   NeedToReset = true; 
 end   
 
-% ToDo ????Buffering???????????????????
+BuffIn = [ deltaF_buff;...
+           Vx_buff    ;...
+           Yr_buff    ;...
+           Beta_buff  ;...
+           y_buff     ;...
+           theta_buff ;...
+           kr_buff]   ;
 
-% ToDo ?????????????????????????
-[ deltaF_vec deltaFisCompleted] = bufferState( deltaF_buff, NeedToReset);
-[ Vx_vec     VxisCompleted]     = bufferState( Vx_buff, NeedToReset);
-[ Yr_vec     YrisCompleted]     = bufferState( Yr_buff, NeedToReset);
-[ Beta_vec   BetaisCompleted]   = bufferState( beta_buff, NeedToReset);
-[ y_vec      yisCompleted]      = bufferState( y_buff, NeedToReset);
-[ theta_buff thetaisCompleted]  = bufferState( theta_buff, NeedToReset);
-[ kr_buff    krisCompleted]     = bufferState( k_buff, NeedToReset);
+[StateBuff_vec, isBuffCompleted] = bufferState( BuffIn, NeedToReset );
 
-isEstValid = (  ( deltaFisCompleted ) ...
-              &&( VxisCompleted ) ...
-              &&( YrisCompleted ) ...
-              &&( BetaisCompleted )...
-              &&( yisCompleted )...
-              &&( thetaisCompleted )...
-              &&( krisCompleted ) );
-              
-Yr_base    = Yr_vec(1);
-beta_base  = Beta_vec(1);
-y_base     = y_vec(1);
-theta_base = theta_vec(1);
+deltaF_vec = StateBuff_vec(1,:);
+Vx_vec = StateBuff_vec(2,:);
+Yr_vec = StateBuff_vec(3,:);
+Beta_vec = StateBuff_vec(4,:);
+y_vec = StateBuff_vec(5,:);
+theta_vec = StateBuff_vec(6,:);
+kr_vec = StateBuff_vec(7,:);
 
-dt = 0.016;
-idxBuff = round(Time_Buff/dt);
+[ dYr, dBeta, dy, dtheta] = imposedDynamics( deltaF_vec, Vx_vec, Yr_vec, Beta_vec, y_vec, theta_vec, kr_vec);  
 
-[ dYr dBeta dy dtheta] = imposedDynamics( delatF_vec, Vx_vec, Yr_vec, Beta_vec, y_vec, theta_vec, kr_vec);  
+% Initialize vecotr
+Yr_est_vec      = zeros(1,length(Yr_vec));
+Beta_est_vec    = zeros(1,length(Beta_vec));
+y_est_vec       = zeros(1,length(y_vec));
+theta_est_vec   = zeros(1,length(theta_vec));
 
 dt = 0.016;
 
-for i=1:length(Yr_vec); 
+isEstValid = isBuffCompleted;
+
+if isEstValid == true
+ for i=1:length(Yr_vec)-1; 
   if i==1
-    Yr_est_vec(i)    = Yr_base;
-    Beta_est_vec(i)  = beta_base;
-    y_est_vec(i)     = y_base;
-    theta_est_vec(i) = theta_base;
+    Yr_est_vec(i)    = Yr_vec(i);
+    Beta_est_vec(i)  = Beta_vec(i);
+    y_est_vec(i)     = y_vec(i);
+    theta_est_vec(i) = theta_vec(i);
   else
-    Yr_est_vec(i)    = Yr_est_vec(i-1)    + dYr(i) * dt;
-    Beta_est_vec(i)  = Beta_est_vec(i-1)  + dBeta(i) * dt;    
-    y_est_vec(i)     = y_est_vec(i-1)     + dy(i) * dt;    
-    theta_est_vec(i) = theta_est_vec(i-1) + dtheta(i) * dt;    
+    Yr_est_vec(i+1)    = Yr_est_vec(i)    + dYr(i) * dt;
+    Beta_est_vec(i+1)  = Beta_est_vec(i)  + dBeta(i) * dt;    
+    y_est_vec(i+1)     = y_est_vec(i)     + dy(i) * dt;    
+    theta_est_vec(i+1) = theta_est_vec(i) + dtheta(i) * dt;    
   end  
+ end
 end
+
+
+TimeBuffMax = 3;
+
+if Time_Buff >= TimeBuffMax;
+    Time_Buff = TimeBuffMax;
+end
+
+idxBuff = round(Time_Buff/dt);
 
 Yr_est = Yr_est_vec(idxBuff);
 Beta_est = Beta_est_vec(idxBuff);
